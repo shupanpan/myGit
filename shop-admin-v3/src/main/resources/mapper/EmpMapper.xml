@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC  
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+   
+<mapper namespace="com.fh.shop.admin.mapper.EmpMapper">
+
+	<update id="updateUserLastLoginTime">
+		update t_emp set lastLoginTime = #{loginTime} where empId =#{empId}
+	</update>
+
+	<update id="updateUserLoginNum">
+		update t_emp set loginCount = #{count} where empId =#{empId}
+	</update>
+
+	<update id="updateUserLoginErrorInfo">
+		update t_emp set loginErrorCount = loginErrorCount +1,loginErrorTime = #{currentDate} where empId = #{userId}
+	</update>
+	<update id="updateUserLoginCount" parameterType="int">
+		update t_emp set loginErrorCount = 0 where empId = #{value}
+	</update>
+	<update id="updateUserStatus">
+		update t_emp set status = #{status} where empId = #{empId}
+	</update>
+
+	<select id="getEmpByLoginname" parameterType="string" resultType="employee">
+		select e.empId,e.pwd,e.loginName,e.empName,e.loginErrorTime,e.status,e.loginErrorCount,e.salt,e.deptId,e.lastLoginTime,e.loginCount,d.deptName "dept.deptName" from t_emp e
+		left join t_dept d on e.deptId = d.id
+		 where loginName = #{loginName}
+	</select>
+	
+	<insert id="addEmp">
+		insert into t_emp(empName,empSex,birthday,salary,loginName,pwd,deptId,salt)
+		values(#{empName},#{empSex},#{birthday},#{salary},#{loginName},#{pwd},#{dept.id},#{salt})
+	</insert>
+	
+	<sql id="search">
+		<where>
+		 <if test="empName != null and empName != ''">
+			empName like #{empName} 
+		</if>
+		<if test="minSalary != null">
+		 and salary &gt;= #{minSalary}
+		</if>
+		<if test="maxSalary != null">
+		and	salary &lt;= #{maxSalary}
+		</if>
+		<if test="minDate != null">
+		and	birthday &gt;= #{minDate}
+		</if>
+		<if test="maxDate != null">
+		and	birthday &lt;= #{maxDate}
+		</if> 
+		<if test="idList != null and idList.size() > 0">
+				te.deptId in 
+				<foreach collection="idList" open="(" close=")" separator="," item="id">
+					#{id}
+				</foreach>
+		</if>
+		</where>
+	</sql>
+	
+	<select id="selectCount" resultType="int">
+		select count(*) from t_emp te left join t_dept td on te.deptId = td.id
+		<include refid="search"></include>
+	</select>
+	
+	<select id="downLoadExcel" parameterType="employee" resultType="employee">
+		select t.* from (select te.empId,te.empName,te.empSex,te.birthday,te.salary,
+		
+		te.loginName,td.deptName "dept.deptName" 
+		
+		from t_emp te left join t_dept td on te.deptId = td.id
+		<include refid="search"></include>
+		order by empId desc)t
+	</select>
+	
+	<select id="findEmpList" resultType="employee">
+		select t.* from (select te.empId,te.empName,te.empSex,te.birthday,te.salary,
+		
+		te.loginName,td.deptName "dept.deptName" 
+		
+		from t_emp te left join t_dept td on te.deptId = td.id
+		
+	 	<include refid="search"></include>
+			order by empId desc)t
+			
+	 	limit #{start},#{length}
+	</select>
+	
+	<delete id="deleteEmp" parameterType="list">
+		delete from t_emp where empId in
+		<foreach collection="list" open="(" close=")" item="empId" separator=",">
+			#{empId}
+		</foreach>
+	</delete>
+	
+</mapper>

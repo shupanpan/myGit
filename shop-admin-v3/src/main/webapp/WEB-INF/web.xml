@@ -1,0 +1,81 @@
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="WebApp_ID" version="3.0">
+    <display-name>Archetype Created Web Application</display-name>
+    
+    
+    <!-- 通过ContextLoaderListener去加载spring的配置文件 -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath:spring/spring-common.xml
+        </param-value>
+    </context-param>
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    
+    <!--通过springMVC的核心控制器DispatcherServlet加载spring-mvc-controller.xml配置文件  -->
+    <servlet>
+        <servlet-name>fhServlet</servlet-name>
+        <servlet-class>
+            org.springframework.web.servlet.DispatcherServlet
+        </servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>
+                classpath:spring/spring-mvc-controller.xml
+            </param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>fhServlet</servlet-name>
+        <url-pattern>*.jhtml</url-pattern>
+    </servlet-mapping>
+    
+    
+    <!-- 处理中文乱码 -->
+    <filter>
+        <filter-name>fhFilter</filter-name>
+        <filter-class>
+            org.springframework.web.filter.CharacterEncodingFilter
+        </filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>utf-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>fhFilter</filter-name>
+        <url-pattern>*.jhtml</url-pattern>
+    </filter-mapping>
+    
+    
+    <filter>
+    	<filter-name>WebContextFilter</filter-name>
+    	<filter-class>com.fh.shop.admin.util.WebContextFilter</filter-class>
+    </filter>
+    <filter-mapping>
+    	<filter-name>WebContextFilter</filter-name>
+    	<url-pattern>*.jhtml</url-pattern>
+    </filter-mapping>
+
+
+	<servlet>
+		<servlet-name>imgCode</servlet-name>
+		<servlet-class>com.fh.shop.admin.servlet.ImageCodeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>imgCode</servlet-name>
+		<url-pattern>/img/code</url-pattern>
+	</servlet-mapping>
+	
+	<welcome-file-list>
+		<welcome-file>/login.jsp</welcome-file>
+	</welcome-file-list>
+    
+</web-app>
